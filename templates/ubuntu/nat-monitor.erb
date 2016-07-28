@@ -1,0 +1,18 @@
+# <%= @name %> - Provides HA for the NAT services
+
+description "<%= @name %>"
+
+start on (net-device-up IFACE!=lo)
+stop on runlevel [!2345]
+
+respawn
+respawn limit 10 5
+umask 022
+chdir <%= @directory %>
+<%- if @upstart_features[:setuid] -%>
+setuid <%= @user %>
+<%- end -%>
+
+<%- if @upstart_features[:setuid] -%>
+exec <%= @command %>
+<%- end -%>

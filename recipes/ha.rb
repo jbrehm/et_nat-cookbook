@@ -60,9 +60,14 @@ if nat_instances.count > 2
     notifies :restart, 'service[nat-monitor]', :delayed
   end
 
-  service 'nat-monitor' do
-    provider Chef::Provider::Service::Upstart
-    action   [:enable, :start]
+  poise_service 'nat-monitor' do
+    command '/opt/chef/embedded/bin/ruby /opt/chef/embedded/bin/nat-monitor'
+    user 'root' 
+    action [:enable, :start]
+  end
+
+  poise_service_options 'nat-monitor' do
+    template 'nat-monitor.erb'
   end
 end
 
