@@ -8,3 +8,4 @@ version          '3.1.2'
 
 depends 'et_fog', '~> 1.2'
 depends 'magic', '~> 1.1'
+depends 'poise-service'

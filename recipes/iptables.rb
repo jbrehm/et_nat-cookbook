@@ -23,6 +23,14 @@ cookbook_file '/usr/sbin/configure-pat.sh' do
   notifies :run, 'execute[configure-pat]'
 end
 
+poise_service 'nat-rules' do
+  command '/usr/sbin/configure-pat.sh'
+  user 'root'
+  directory '/tmp'
+  options :upstart, start: 'on started network'
+  options :systemd, after_target: 'network'
+end
+
 if node['ec2']['network_interfaces_macs'] # keeps this from running on Vagrant
   if node['nat']['yaml']['aws_access_key_id']
     conn_opts = {
