@@ -70,8 +70,3 @@ if nat_instances.count > 2
     template 'nat-monitor.erb'
   end
 end
-
-# Clean up old jobs created pre v1.2.0 (this can probably be removed eventually)
-cron 'nat-monitor' do
-  action :delete
-end
