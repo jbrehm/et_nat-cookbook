@@ -11,20 +11,16 @@ cookbook_file '/etc/sysctl.d/nat.conf' do
   notifies :run, 'execute[sysctl-nat]'
 end
 
-cookbook_file '/etc/iptables.rules' do
-  source 'iptables.rules'
-  owner  'root'
-  group  'root'
-  mode   0644
+execute 'configure-pat' do
+  command '/usr/sbin/configure-pat.sh'
+  action :nothing
 end
 
-execute 'iptables-restore' do
-  command '/sbin/iptables-restore < /etc/iptables.rules'
-end
-
-cookbook_file '/etc/network/if-pre-up.d/iptables_load' do
-  source 'iptables_load'
-  mode   0755
+cookbook_file '/usr/sbin/configure-pat.sh' do
+  owner 'root'
+  group 'root'
+  mode '0755'
+  notifies :run, 'execute[configure-pat]'
 end
 
 if node['ec2']['network_interfaces_macs'] # keeps this from running on Vagrant
