@@ -24,49 +24,49 @@ if nat_instances.count > 2
       m[n['ec2']['instance_id']] = n['ipaddress']
     end
 
+#  if node['nat']['route_table_id']
+#    node.set['nat']['yaml']['route_table_id'] = node['nat']['route_table_id']
+#  else
+#    if node['nat']['yaml']['aws_access_key_id']
+#      conn_opts = {
+#        aws_access_key_id: node['nat']['yaml']['aws_access_key_id'],
+#        aws_secret_access_key: node['nat']['yaml']['aws_secret_access_key']
+#      }
+#    else
+#      conn_opts = { use_iam_profile: true }
+#    end
+
+#    if node['nat']['yaml']['aws_url']
+#      conn_opts[:endpoint] = node['nat']['yaml']['aws_url']
+#    end
+#
+#    node.set['nat']['yaml']['route_table_id'] =
+#      ::EverTrue::EtNat::Helpers.nat_route_table_id(
+#        node.chef_environment,
+#        conn_opts
+#      )
+#  end
+
   if node['nat']['route_table_id']
-    node.set['nat']['yaml']['route_table_id'] = node['nat']['route_table_id']
-  else
-    if node['nat']['yaml']['aws_access_key_id']
-      conn_opts = {
-        aws_access_key_id: node['nat']['yaml']['aws_access_key_id'],
-        aws_secret_access_key: node['nat']['yaml']['aws_secret_access_key']
-      }
-    else
-      conn_opts = { use_iam_profile: true }
+    node['nat']['route_table_id'].each_index do |i|
+      
+      file "/etc/nat_monitor_#{i}.yml" do
+        owner 'root'
+        group 'root'
+        mode 0644
+        content yaml_config(node['nat']['route_table_id'][i]).to_hash)
+        notifies :restart, "service[nat-monitor-#{i}", :delayed
+      end
+
+      poise_service "nat-monitor-#{i}" do
+        command "/opt/chef/embedded/bin/ruby /opt/chef/embedded/bin/nat-monitor /etc/nat_monitor_#{i}.yml"
+        user 'root'
+        action [:enable, :start]
+      end
+
+      poise_service_options "nat-monitor-#{i}" do
+        template 'nat-monitor.erb'
+      end
     end
-
-    if node['nat']['yaml']['aws_url']
-      conn_opts[:endpoint] = node['nat']['yaml']['aws_url']
-    end
-
-    node.set['nat']['yaml']['route_table_id'] =
-      ::EverTrue::EtNat::Helpers.nat_route_table_id(
-        node.chef_environment,
-        conn_opts
-      )
-  end
-
-  file '/etc/nat_monitor.yml' do
-    owner  'root'
-    group  'root'
-    mode   0644
-    content yaml_config(node['nat']['yaml'].to_hash)
-    notifies :restart, 'service[nat-monitor]', :delayed
-  end
-
-  cookbook_file '/etc/init/nat-monitor.conf' do
-    source 'nat-monitor.conf'
-    notifies :restart, 'service[nat-monitor]', :delayed
-  end
-
-  poise_service 'nat-monitor' do
-    command '/opt/chef/embedded/bin/ruby /opt/chef/embedded/bin/nat-monitor'
-    user 'root' 
-    action [:enable, :start]
-  end
-
-  poise_service_options 'nat-monitor' do
-    template 'nat-monitor.erb'
   end
 end
