@@ -55,7 +55,7 @@ if nat_instances.count > 2
         group 'root'
         mode 0644
         content yaml_config(node['nat']['route_tables'][i].to_hash)
-        notifies :restart, "service[nat-monitor-#{i}", :delayed
+        notifies :restart, "service[nat-monitor-#{i}]", :delayed
       end
 
       poise_service "nat-monitor-#{i}" do
