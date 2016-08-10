@@ -59,7 +59,7 @@ if nat_instances.count > 2
       end
 
       poise_service "nat-monitor-#{i}" do
-        command "/opt/chef/embedded/bin/ruby /opt/chef/embedded/bin/nat-monitor /etc/nat_monitor_#{i}.yml"
+        command "/usr/bin/ruby /usr/bin/nat-monitor /etc/nat_monitor_#{i}.yml"
         user 'root'
         action [:enable, :start]
       end
