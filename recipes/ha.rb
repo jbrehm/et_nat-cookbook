@@ -47,14 +47,14 @@ if nat_instances.count > 2
 #      )
 #  end
 
-  if node['nat']['route_table_id']
-    node['nat']['route_table_id'].each_index do |i|
+  if node['nat']['route_tables']
+    node['nat']['route_tables'].each_index do |i|
       
       file "/etc/nat_monitor_#{i}.yml" do
         owner 'root'
         group 'root'
         mode 0644
-        content yaml_config(node['nat']['route_table_id'][i].to_hash)
+        content yaml_config(node['nat']['route_tables'][i].to_hash)
         notifies :restart, "service[nat-monitor-#{i}", :delayed
       end
 
