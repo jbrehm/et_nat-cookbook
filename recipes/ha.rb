@@ -54,7 +54,7 @@ if nat_instances.count > 2
         owner 'root'
         group 'root'
         mode 0644
-        content yaml_config(node['nat']['route_table_id'][i]).to_hash)
+        content yaml_config(node['nat']['route_table_id'][i].to_hash)
         notifies :restart, "service[nat-monitor-#{i}", :delayed
       end
 
